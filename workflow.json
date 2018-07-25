@@ -1,0 +1,95 @@
+{
+  "description" : "NStack workflow which uses survival analysis to predict churn and buckets users based on propensity to lapse.",
+  "events" : {
+    "-LFbtET_o6v5-_mC_inR" : {
+      "file" : "hazard_by_user.csv",
+      "message" : "File processed",
+      "status" : "success",
+      "timestamp" : "2018-06-25T17:27:57+00:00"
+    },
+    "-LFbtOWbFfzKqs137ONH" : {
+      "message" : "Modelling Started",
+      "status" : "info",
+      "timestamp" : "2018-06-25T17:27:36+00:00"
+    }
+  },
+  "name" : "Predict Lapsed Users",
+  "nodes" : [
+     {
+      "id" : "45eb3c13-13be-4d1e-a4aa-661f6a7cd214",
+      "config" : {
+        "High" : {
+          "name" : "High",
+          "readonly" : true,
+          "value" : "hazard_index, 0.75",
+          "visualType" : "Input"
+        },
+        "Low" : {
+          "name" : "Low",
+          "readonly" : true,
+          "value" : "hazard_index, 0.25",
+          "visualType" : "Input"
+        },
+        "Medium" : {
+          "name" : "Medium",
+          "readonly" : true,
+          "value" : "hazard_index, 0.50",
+          "visualType" : "Input"
+        }
+      },
+      "title" : "Bucket"
+    },
+    {
+      "id": "9903EDf9498a83-02b0-43bb-9f13-0f4f9241fe20",
+      "config" : {
+        "SQL Query" : {
+          "name" : "SQL Query",
+          "readonly" : false,
+          "value" : "query.sql",
+          "visualType" : "Input"
+        }
+      },
+      "title" : "BigQuery"
+    },
+    {
+      "id" : "c1e8c9f9-2d31-4cdb-bf5d-332ad86adf51",
+      "config" : {
+        "Survival" : {
+          "name" : "Survival Threshold",
+          "readonly" : true,
+          "value" : 7,
+          "visualType" : "Input"
+        }
+      },
+      "functions" : [ "Predict User Hazard" ],
+      "title" : "Survival Analysis Model",
+      "type" : "Model"
+    },
+    {
+      "id" :  "f4eb3c13-13be-4d1e-a4aa-661f6a7cd214",
+      "config" : {
+        "File Name" : {
+          "name" : "File Name",
+          "readonly" : true,
+          "value" : "output.csv",
+          "visualType" : "Input"
+        }
+      },
+      "title" : "Create CSV"
+    }
+  ],
+  "edges" : [
+    {
+      "source" : "9903EDf9498a83-02b0-43bb-9f13-0f4f9241fe20",
+      "target" : "c1e8c9f9-2d31-4cdb-bf5d-332ad86adf51"
+    },
+    {
+      "source" : "c1e8c9f9-2d31-4cdb-bf5d-332ad86adf51",
+      "target" : "45eb3c13-13be-4d1e-a4aa-661f6a7cd214"
+    },
+    {
+      "source" : "45eb3c13-13be-4d1e-a4aa-661f6a7cd214",
+      "target" : "f4eb3c13-13be-4d1e-a4aa-661f6a7cd214"
+    }
+  ]
+}
